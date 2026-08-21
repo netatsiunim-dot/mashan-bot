@@ -1,0 +1,20 @@
+<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>מש״א-בוט AI</title>
+<style>
+body{margin:0;background:#e9edf1;font-family:Arial;color:#17222d}.app{max-width:620px;margin:auto;height:100vh;background:white;display:flex;flex-direction:column}
+header{background:#203849;color:white;padding:18px}.logo{font-size:28px}h1{display:inline;margin-right:10px;font-size:23px}header p{margin:5px 0 0;opacity:.8}
+#chat{flex:1;overflow:auto;padding:16px}.msg{padding:12px 14px;border-radius:16px;margin:9px 0;max-width:88%;line-height:1.5}.bot{background:#edf1f4;margin-left:auto}.user{background:#315b7d;color:white;margin-right:auto}
+.tag{display:inline-block;background:#dfeaf0;border-radius:10px;padding:6px 10px;font-weight:bold}.input{display:flex;gap:8px;border-top:1px solid #ddd;padding:12px}
+input{flex:1;padding:13px;border:1px solid #cbd4dc;border-radius:22px;font-size:16px}.send{border:0;border-radius:22px;background:#315b7d;color:white;padding:0 18px;font-weight:bold}
+</style></head><body><div class="app"><header><div class="logo">🤖 <h1>מש״א-בוט AI</h1></div><p>שואלים — מבינים — מכוונים לגורם הנכון</p></header>
+<div id="chat"><div class="msg bot">היי 👋 כתבי לי כל שאלה, גם בניסוח חופשי. אני אנסה לכוון אותך ל־<b>שלישות, ת״ש, מופת או מילואים</b>.</div></div>
+<div class="input"><input id="q" placeholder="למשל: יש לי בעיה בתלוש..." onkeydown="if(event.key==='Enter')send()"><button class="send" onclick="send()">שלחי</button></div></div>
+<script>
+const chat=document.getElementById("chat"),q=document.getElementById("q");
+function add(t,c){const d=document.createElement("div");d.className="msg "+c;d.innerHTML=t;chat.appendChild(d);chat.scrollTop=chat.scrollHeight}
+async function send(){const text=q.value.trim();if(!text)return;add(text,"user");q.value="";add("🤖 בודקת למי הכי נכון להפנות אותך...","bot");
+try{const r=await fetch("/api/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({message:text})});const d=await r.json();chat.lastElementChild.remove();
+if(d.error)throw Error(d.error);
+const dep=d.department?`<span class="tag">${d.department}</span><br><br>`:"";
+add(dep+`${d.answer||""}<br><br><b>למה?</b> ${d.reason||""}<br><br><b>מה עכשיו?</b> ${d.next_step||""}<br><br><small>הכוונה ראשונית בלבד — במקרה של ספק, יש לוודא מול גורם משא״ן.</small>`,"bot");
+}catch(e){chat.lastElementChild.remove();add("⚠️ לא הצלחתי להתחבר לבוט. בדקי שהשרת פועל ושמפתח ה־API מוגדר.","bot")}}
+</script></body></html>
